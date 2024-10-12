@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +37,15 @@ public class MovieServiceImpl implements MovieService {
     public MovieDto addMovie(MovieDto movieDto, MultipartFile file) throws IOException {
 
         // upload the file
+        if(Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
+            throw new RuntimeException("File already exists! Please Enter another file name");
+        }
         String uploadedFileName = fileService.uploadFile(path, file);
         // set the value of field 'poster' as filename
         movieDto.setPoster(uploadedFileName);
         // map dto to Movie Object
         Movie movie = new Movie(
-                movieDto.getMovieId(),
+               null,
                 movieDto.getTitle(),
                 movieDto.getDirector(),
                 movieDto.getStudio(),
@@ -108,5 +113,67 @@ public class MovieServiceImpl implements MovieService {
             movieDtos.add(res);
         }
         return movieDtos;
+    }
+
+    @Override
+    public MovieDto updateMovie(Integer movieId, MovieDto movieDto, MultipartFile file) throws IOException {
+        // Check if movie object exists with given movieId
+        Movie mv = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Movie Not Found!"));
+
+        // if file is null, then do nothing
+        // else delete existing file associated with the record, and upload the new file
+        String fileName = mv.getPoster();
+        if(file != null) {
+            Files.deleteIfExists(Paths.get(path + File.separator + fileName));
+            fileName = fileService.uploadFile(path, file);
+        }
+
+        // Set movieDto's poster value
+        movieDto.setPoster(fileName);
+
+        // Map it to movie object
+        Movie movie = new Movie(
+                mv.getMovieId(),
+                movieDto.getTitle(),
+                movieDto.getDirector(),
+                movieDto.getStudio(),
+                movieDto.getMovieCast(),
+                movieDto.getPoster(),
+                movieDto.getReleaseYear()
+        );
+
+        // Save the movie Object
+        Movie updatedMovie = movieRepository.save(movie);
+
+        // generate posterUrl for it
+        String posterUrl = baseUrl + "/file/" + fileName;
+
+        // map to movieDto and return it
+        MovieDto response = new MovieDto(
+                movie.getMovieId(),
+                movie.getTitle(),
+                movie.getDirector(),
+                movie.getStudio(),
+                movie.getMovieCast(),
+                movie.getReleaseYear(),
+                movie.getPoster(),
+                posterUrl
+        );
+        return response;
+    }
+
+    @Override
+    public String deleteMovie(Integer movieId) throws IOException {
+        // Check if movie object exists with given movieId
+        Movie mv = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Movie Not Found!"));
+        Integer id = mv.getMovieId();
+
+        // delete the file associated with this object
+        Files.deleteIfExists(Paths.get(path + File.separator + mv.getPoster()));
+
+        // delete the movie object'
+        movieRepository.delete(mv);
+
+        return "Movie deleted with id = " + id;
     }
 }
