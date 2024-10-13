@@ -15,7 +15,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   springboot-app:
-    image: 'movie-api' # Replace this with your actual image name
+    image: 'movie-api'
     build:
       context: .
       dockerfile: Dockerfile
