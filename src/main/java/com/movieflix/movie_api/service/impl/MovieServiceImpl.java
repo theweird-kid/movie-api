@@ -1,6 +1,7 @@
 package com.movieflix.movie_api.service.impl;
 
 import com.movieflix.movie_api.dto.MovieDto;
+import com.movieflix.movie_api.dto.MoviePageResponse;
 import com.movieflix.movie_api.entities.Movie;
 import com.movieflix.movie_api.exceptions.FileExistsException;
 import com.movieflix.movie_api.exceptions.MovieNotFoundException;
@@ -8,6 +9,10 @@ import com.movieflix.movie_api.repositories.MovieRepository;
 import com.movieflix.movie_api.service.FileService;
 import com.movieflix.movie_api.service.MovieService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,22 +105,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieDto> getAllMovies() {
         // fetch all data from DB
         List<Movie> movies = movieRepository.findAll();
-        List<MovieDto> movieDtos = new ArrayList<>();
-        // Iterate through the list and Generate posterUrl for each movie obj, and map to MovieDto object
-        for(Movie movie: movies) {
-            String posterUrl = baseUrl + "/file/" + movie.getPoster();
-            MovieDto res = new MovieDto(
-                    movie.getMovieId(),
-                    movie.getTitle(),
-                    movie.getDirector(),
-                    movie.getStudio(),
-                    movie.getMovieCast(),
-                    movie.getReleaseYear(),
-                    movie.getPoster(),
-                    posterUrl
-            );
-            movieDtos.add(res);
-        }
+        List<MovieDto> movieDtos = getMovieDtos(movies);
         return movieDtos;
     }
 
@@ -181,5 +171,59 @@ public class MovieServiceImpl implements MovieService {
         movieRepository.delete(mv);
 
         return "Movie deleted with id = " + id;
+    }
+
+    @Override
+    public MoviePageResponse getAllMoviesWithPagination(Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<Movie> moviePage = movieRepository.findAll(pageable);
+        List<Movie> movies = moviePage.getContent();
+
+
+        List<MovieDto> movieDtos = getMovieDtos(movies);
+
+        return new MoviePageResponse(movieDtos, pageNumber, pageSize,
+                moviePage.getTotalElements(),
+                moviePage.getTotalPages(),
+                moviePage.isLast());
+    }
+
+    @Override
+    public MoviePageResponse getAllMoviesWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String sortBy, String dir) {
+
+        Sort sort = dir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Movie> moviePage = movieRepository.findAll(pageable);
+        List<Movie> movies = moviePage.getContent();
+
+
+        List<MovieDto> movieDtos = getMovieDtos(movies);
+
+        return new MoviePageResponse(movieDtos, pageNumber, pageSize,
+                moviePage.getTotalElements(),
+                moviePage.getTotalPages(),
+                moviePage.isLast());
+    }
+
+    private List<MovieDto> getMovieDtos(List<Movie> movies) {
+        List<MovieDto> movieDtos = new ArrayList<>();
+        // Iterate through the list and Generate posterUrl for each movie obj, and map to MovieDto object
+        for(Movie movie: movies) {
+            String posterUrl = baseUrl + "/file/" + movie.getPoster();
+            MovieDto res = new MovieDto(
+                    movie.getMovieId(),
+                    movie.getTitle(),
+                    movie.getDirector(),
+                    movie.getStudio(),
+                    movie.getMovieCast(),
+                    movie.getReleaseYear(),
+                    movie.getPoster(),
+                    posterUrl
+            );
+            movieDtos.add(res);
+        }
+        return movieDtos;
     }
 }
