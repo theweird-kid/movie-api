@@ -1,5 +1,6 @@
 package com.movieflix.movie_api.auth.entities;
 
+import com.movieflix.movie_api.entities.Wishlist;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,9 @@ public class User implements UserDetails {
     @NotBlank(message = "The password field can't be blank")
     @Size(min = 5, message = "the password must be at least 5 characters long")
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wishlist> wishlistedMovies;
 
     @OneToOne(mappedBy = "user")
     private RefreshToken refreshToken;

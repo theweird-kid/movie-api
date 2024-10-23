@@ -1,8 +1,5 @@
 package com.movieflix.movie_api.dto;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -13,6 +10,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Setter
 public class MovieDto {
+    @Getter
     private Integer movieId;
 
     @NotBlank(message = "Please provide movie title!")
@@ -24,8 +22,10 @@ public class MovieDto {
     @NotBlank(message = "Please provide movie studio!")
     private String studio;
 
+    @Getter
     private Set<String> movieCast;
 
+    @Getter
     private Integer releaseYear;
 
     @NotBlank(message = "Please provide movie's poster!")
@@ -34,14 +34,6 @@ public class MovieDto {
     @NotBlank(message = "Please provide poster's url")
     private String posterUrl;
 
-
-    public Integer getMovieId() {
-        return movieId;
-    }
-
-    public void setMovieId(Integer movieId) {
-        this.movieId = movieId;
-    }
 
     public @NotBlank(message = "Please provide movie title!") String getTitle() {
         return title;
@@ -65,22 +57,6 @@ public class MovieDto {
 
     public void setStudio(@NotBlank(message = "Please provide movie studio!") String studio) {
         this.studio = studio;
-    }
-
-    public Set<String> getMovieCast() {
-        return movieCast;
-    }
-
-    public void setMovieCast(Set<String> movieCast) {
-        this.movieCast = movieCast;
-    }
-
-    public Integer getReleaseYear() {
-        return releaseYear;
-    }
-
-    public void setReleaseYear(Integer releaseYear) {
-        this.releaseYear = releaseYear;
     }
 
     public @NotBlank(message = "Please provide movie's poster!") String getPoster() {

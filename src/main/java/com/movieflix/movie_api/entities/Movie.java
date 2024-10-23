@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -14,6 +16,7 @@ import java.util.Set;
 @Getter
 public class Movie {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer movieId;
@@ -30,16 +33,22 @@ public class Movie {
     @NotBlank(message = "Please provide movie studio!")
     private String studio;
 
+    @Setter
+    @Getter
     @ElementCollection
     @CollectionTable(name = "movie_cast")
     private Set<String> movieCast;
 
+    @Getter
     @Column(nullable = false)
     private Integer releaseYear;
 
     @Column(nullable = false)
     @NotBlank(message = "Please provide movie's poster!")
     private String poster;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wishlist> wishlistedByUsers;
 
     public Movie(Integer movieId, String title, String director, String studio, Set<String> movieCast, String poster, Integer releaseYear) {
         this.movieId = movieId;
@@ -51,14 +60,6 @@ public class Movie {
         this.releaseYear = releaseYear;
     }
 
-
-    public Integer getMovieId() {
-        return movieId;
-    }
-
-    public void setMovieId(Integer movieId) {
-        this.movieId = movieId;
-    }
 
     public @NotBlank(message = "Please provide movie title!") String getTitle() {
         return title;
@@ -76,28 +77,12 @@ public class Movie {
         this.director = director;
     }
 
-    public Set<String> getMovieCast() {
-        return movieCast;
-    }
-
-    public void setMovieCast(Set<String> movieCast) {
-        this.movieCast = movieCast;
-    }
-
     public @NotBlank(message = "Please provide movie studio!") String getStudio() {
         return studio;
     }
 
     public void setStudio(@NotBlank(message = "Please provide movie studio!") String studio) {
         this.studio = studio;
-    }
-
-    public Integer getReleaseYear() {
-        return releaseYear;
-    }
-
-    public void setReleaseYear(Integer releaseYear) {
-        this.releaseYear = releaseYear;
     }
 
     public @NotBlank(message = "Please provide movie's poster!") String getPoster() {
