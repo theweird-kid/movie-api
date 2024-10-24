@@ -1,5 +1,6 @@
 package com.movieflix.movie_api.service;
 
+import com.movieflix.movie_api.dto.WishlistDto;
 import com.movieflix.movie_api.entities.Movie;
 import com.movieflix.movie_api.entities.Wishlist;
 

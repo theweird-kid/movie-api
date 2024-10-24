@@ -1,5 +1,6 @@
 package com.movieflix.movie_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,7 @@ public class Movie {
     private String poster;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Wishlist> wishlistedByUsers;
 
     public Movie(Integer movieId, String title, String director, String studio, Set<String> movieCast, String poster, Integer releaseYear) {

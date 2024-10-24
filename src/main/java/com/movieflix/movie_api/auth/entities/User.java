@@ -1,5 +1,6 @@
 package com.movieflix.movie_api.auth.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.movieflix.movie_api.entities.Wishlist;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -45,6 +46,7 @@ public class User implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Wishlist> wishlistedMovies;
 
     @OneToOne(mappedBy = "user")
